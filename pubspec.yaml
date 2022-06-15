@@ -36,6 +36,6 @@ flutter:
     - assets/Location_not_found.png
   
   fonts:
-    - family: Ubuntu
+    - family: Poppins
       fonts:
-        - asset: fonts/Ubuntu-Regular.ttf
+        - asset: fonts/Poppins-Regular.ttf

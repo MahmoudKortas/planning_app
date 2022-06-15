@@ -17,6 +17,7 @@ class _MainViewState extends State<MainView> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late Future<List<LocationsModel>> _savedLocationsModel;
   late List<LocationsModel>? _locationsModel = [];
+  var choosedIndex = -1;
 
   @override
   void initState() {
@@ -42,14 +43,44 @@ class _MainViewState extends State<MainView> {
       body: SafeArea(
         child: Column(
           children: [
+            _status == NetworkStatus.disconnected
+                ? Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 16, left: 8),
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.wifi_off,
+                            color: Colors.grey,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Text(
+                              "you are offline",
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Center(
+                    child: Container(),
+                  ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
               child: TextField(
                 decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                  hintText: 'Type your start point...',
-                ),
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(),
+                    hintText: 'Type your start point...',
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(155, 33, 149, 243)),
+                    )),
                 onChanged: (inputData) {
                   _locationsModel = null;
                   inputData.isEmpty ? inputText = "" : inputText = inputData;
@@ -87,7 +118,13 @@ class _MainViewState extends State<MainView> {
                   ? Expanded(
                       child: inputText.isEmpty
                           ? const Center(
-                              child: Text("Search results are displayed here"),
+                              child: Text(
+                                "Search results are displayed here",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.grey,
+                                ),
+                              ),
                             )
                           : _locationsModel == null
                               ? const Center(
@@ -101,38 +138,69 @@ class _MainViewState extends State<MainView> {
                                   : Scrollbar(
                                       thumbVisibility: true,
                                       child: ListView.builder(
-                                        itemCount: _locationsModel!.length,
+                                        itemCount: _locationsModel?.length,
                                         itemBuilder: (context, index) {
-                                          return Card(
-                                            child: Column(
-                                              children: [
-                                                // ignore: prefer_interpolation_to_compose_strings
-                                                Text(
-                                                  "Name : ${_locationsModel![index].name}",
-                                                  overflow:
-                                                      TextOverflow.visible,
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8),
+                                            child: InkWell(
+                                              onTap: () {
+                                                choosedIndex = index;
+                                                print("index::$index");
+                                                setState(() {});
+                                              },
+                                              child: Card(
+                                                color: index == choosedIndex
+                                                    ? Color.fromARGB(
+                                                        202, 204, 204, 204)
+                                                    : Colors.white,
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(horizontal: 8),
+                                                  child: Column(
+                                                    children: [
+                                                      // ignore: prefer_interpolation_to_compose_strings
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 20),
+                                                        child: Text(
+                                                          "Name : ${_locationsModel?[index].name}",
+                                                          overflow: TextOverflow
+                                                              .visible,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 10.0,
+                                                      ),
+                                                      Text(
+                                                        "Type : ${_locationsModel?[index].type}",
+                                                        overflow:
+                                                            TextOverflow.fade,
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 10.0,
+                                                      ),
+                                                      Text(
+                                                          "Possibly the locality of the match : ${_locationsModel?[index].isBest}"),
+                                                      const SizedBox(
+                                                        height: 10.0,
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                bottom: 20),
+                                                        child: Text(
+                                                            " parent name : ${_locationsModel?[index].parent?.name}"),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 10.0,
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                                const SizedBox(
-                                                  height: 10.0,
-                                                ),
-                                                Text(
-                                                  "Type : ${_locationsModel?[index].type}",
-                                                  overflow: TextOverflow.fade,
-                                                ),
-                                                const SizedBox(
-                                                  height: 10.0,
-                                                ),
-                                                Text(
-                                                    "Possibly the locality of the match : ${_locationsModel![index].isBest}"),
-                                                const SizedBox(
-                                                  height: 10.0,
-                                                ),
-                                                Text(
-                                                    " parent name : ${_locationsModel?[index].parent?.name}"),
-                                                const SizedBox(
-                                                  height: 10.0,
-                                                ),
-                                              ],
+                                              ),
                                             ),
                                           );
                                         },
@@ -140,14 +208,10 @@ class _MainViewState extends State<MainView> {
                                     ),
                     )
                   : Expanded(
-                      //child: Center(
                       child: Column(
                         children: [
-                          const Text("you are offline"),
                           Expanded(
-                            child:
-                                //Text("network error"),
-                                FutureBuilder<List<LocationsModel>>(
+                            child: FutureBuilder<List<LocationsModel>>(
                               future: _savedLocationsModel,
                               builder: (BuildContext context,
                                   AsyncSnapshot<List<LocationsModel>>
@@ -158,34 +222,51 @@ class _MainViewState extends State<MainView> {
                                     if (kDebugMode) {
                                       print("snapshot::$snapshot");
                                     }
-                                    return Card(
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            "Name : ${snapshot.data![index].name}",
-                                            overflow: TextOverflow.visible,
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8),
+                                      child: Card(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8),
+                                          child: Column(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 20),
+                                                child: Text(
+                                                  "Name : ${snapshot.data?[index].name}",
+                                                  overflow:
+                                                      TextOverflow.visible,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                height: 10.0,
+                                              ),
+                                              Text(
+                                                "Type : ${snapshot.data?[index].type}",
+                                                overflow: TextOverflow.fade,
+                                              ),
+                                              const SizedBox(
+                                                height: 10.0,
+                                              ),
+                                              Text(
+                                                  "Possibly the locality of the match : ${snapshot.data?[index].isBest}"),
+                                              const SizedBox(
+                                                height: 10.0,
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 20),
+                                                child: Text(
+                                                    " parent name : ${snapshot.data?[index].parent?.name}"),
+                                              ),
+                                              const SizedBox(
+                                                height: 10.0,
+                                              ),
+                                            ],
                                           ),
-                                          const SizedBox(
-                                            height: 10.0,
-                                          ),
-                                          Text(
-                                            "Type : ${snapshot.data?[index].type}",
-                                            overflow: TextOverflow.fade,
-                                          ),
-                                          const SizedBox(
-                                            height: 10.0,
-                                          ),
-                                          Text(
-                                              "Possibly the locality of the match : ${snapshot.data![index].isBest}"),
-                                          const SizedBox(
-                                            height: 10.0,
-                                          ),
-                                          Text(
-                                              " parent name : ${snapshot.data?[index].parent?.name}"),
-                                          const SizedBox(
-                                            height: 10.0,
-                                          ),
-                                        ],
+                                        ),
                                       ),
                                     );
                                   },
@@ -195,77 +276,8 @@ class _MainViewState extends State<MainView> {
                           ),
                         ],
                       ),
-
-                      //),
                     ),
             ),
-            /*Expanded(
-              child: _locationsModel == null
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : _locationsModel!.isEmpty
-                      ? const Center(
-                          child: Text("no search matches"),
-                        )
-                      : Scrollbar(
-                          thumbVisibility: true,
-                          child: ListView.builder(
-                            itemCount: _locationsModel!.length,
-                            itemBuilder: (context, index) {
-                              return Card(
-                                child: Column(
-                                  children: [
-                                    /*Text(_locationsModel?[index].id ?? "id"),
-                                  const SizedBox(
-                                    height: 10.0,
-                                  ),*/
-                                    Text(
-                                      _locationsModel?[index].name ?? "name",
-                                      overflow: TextOverflow.visible,
-                                    ),
-                                    const SizedBox(
-                                      height: 10.0,
-                                    ),
-                                    Text(
-                                      _locationsModel?[index]
-                                              .disassembledName ??
-                                          "disassembledName",
-                                      overflow: TextOverflow.fade,
-                                    ),
-                                    const SizedBox(
-                                      height: 10.0,
-                                    ),
-                                    // Text(_locationsModel?[index].matchQuality??),
-                                    // Text(_locationsModel?[index].isBest??),
-                                    //  Text(_locationsModel?[index].coord??),
-                                    /*Text(
-                                    _locationsModel?[index].type ?? "type",
-                                    overflow: TextOverflow.ellipsis,
-                                  ),*/
-                                    /*Text(_locationsModel?[index].parent?.id ??
-                                      "id"),
-                                  const SizedBox(
-                                    height: 10.0,
-                                  ),*/
-                                    Text(_locationsModel?[index].parent?.name ??
-                                        "name"),
-                                    const SizedBox(
-                                      height: 10.0,
-                                    ),
-                                    /*Text(_locationsModel?[index].parent?.type ??
-                                      "type"),
-                                  const SizedBox(
-                                    height: 20.0,
-                                  ),*/
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-            ),
-          */
           ],
         ),
       ),
