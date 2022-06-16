@@ -139,7 +139,7 @@ class _MainViewState extends State<MainView> {
                                                 color: index == choosedIndex
                                                     ? const Color.fromARGB(
                                                         202, 204, 204, 204)
-                                                    : Colors.transparent,
+                                                    : Colors.white,
                                                 child: Padding(
                                                   padding: const EdgeInsets
                                                       .symmetric(horizontal: 8),
@@ -210,46 +210,58 @@ class _MainViewState extends State<MainView> {
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8),
-                                      child: Card(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8),
-                                          child: Column(
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 20),
-                                                child: Text(
-                                                  "Name : ${snapshot.data?[index].name}",
-                                                  overflow:
-                                                      TextOverflow.visible,
+                                      child: InkWell(
+                                        onTap: () {
+                                          choosedIndex = index;
+                                          setState(() {});
+                                        },
+                                        child: Card(
+                                          color: index == choosedIndex
+                                              ? const Color.fromARGB(
+                                                  202, 204, 204, 204)
+                                              : Colors.white,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8),
+                                            child: Column(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 20),
+                                                  child: Text(
+                                                    "Name : ${snapshot.data?[index].name}",
+                                                    overflow:
+                                                        TextOverflow.visible,
+                                                  ),
                                                 ),
-                                              ),
-                                              const SizedBox(
-                                                height: 10.0,
-                                              ),
-                                              Text(
-                                                "Type : ${snapshot.data?[index].type}",
-                                                overflow: TextOverflow.fade,
-                                              ),
-                                              const SizedBox(
-                                                height: 10.0,
-                                              ),
-                                              Text(
-                                                  "Possibly the locality of the match : ${snapshot.data?[index].isBest}"),
-                                              const SizedBox(
-                                                height: 10.0,
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 20),
-                                                child: Text(
-                                                    " parent name : ${snapshot.data?[index].parent?.name}"),
-                                              ),
-                                              const SizedBox(
-                                                height: 10.0,
-                                              ),
-                                            ],
+                                                const SizedBox(
+                                                  height: 10.0,
+                                                ),
+                                                Text(
+                                                  "Type : ${snapshot.data?[index].type}",
+                                                  overflow: TextOverflow.fade,
+                                                ),
+                                                const SizedBox(
+                                                  height: 10.0,
+                                                ),
+                                                Text(
+                                                    "Possibly the locality of the match : ${snapshot.data?[index].isBest}"),
+                                                const SizedBox(
+                                                  height: 10.0,
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 20),
+                                                  child: Text(
+                                                      " parent name : ${snapshot.data?[index].parent?.name}"),
+                                                ),
+                                                const SizedBox(
+                                                  height: 10.0,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),

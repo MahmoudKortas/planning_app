@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
       // preferred ThemeMode (light, dark, or system default) from the
       // SettingsController to display the correct theme.
       theme: ThemeData(fontFamily: 'Poppins'),
-      darkTheme: ThemeData.dark(),
+      darkTheme: ThemeData.light(),
       // Define a function to handle named routes in order to support
       // Flutter web url navigation and deep linking.
       onGenerateRoute: (RouteSettings routeSettings) {
