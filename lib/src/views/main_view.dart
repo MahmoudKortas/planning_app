@@ -5,6 +5,8 @@ import 'package:network_handler/network_status.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/api_service.dart';
 import '../models/locations_model.dart';
+import '../widgets/info.dart';
+import '../widgets/offline.dart';
 
 class MainView extends StatefulWidget {
   const MainView({Key? key}) : super(key: key);
@@ -17,6 +19,8 @@ class _MainViewState extends State<MainView> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late Future<List<LocationsModel>> _savedLocationsModel;
   late List<LocationsModel>? _locationsModel = [];
+  var _startPointController = TextEditingController();
+
   var choosedIndex = -1;
 
   @override
@@ -29,11 +33,11 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  String dropdownValue = 'name a-z';
+  /*String dropdownValue = 'name a-z';
   final items = [
     'name a-z',
     'name z-a',
-  ];
+  ];*/
   String inputText = "";
 
   NetworkStatus _status = NetworkStatus.unknown;
@@ -44,43 +48,34 @@ class _MainViewState extends State<MainView> {
         child: Column(
           children: [
             _status == NetworkStatus.disconnected
-                ? Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 16, left: 8),
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.wifi_off,
-                            color: Colors.grey,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 8),
-                            child: Text(
-                              "you are offline",
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
+                ? Offline()
                 : Center(
                     child: Container(),
                   ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
               child: TextField(
-                decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
-                    hintText: 'Type your start point...',
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Color.fromARGB(155, 33, 149, 243)),
-                    )),
+                controller: _startPointController,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                      onPressed: () => setState(
+                            () {
+                              _startPointController.clear();
+                              inputText = "";
+                            },
+                          ),
+                      icon: const Icon(Icons.clear)),
+                  border: const OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(155, 33, 149, 243),
+                    ),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20.0),
+                    ),
+                  ),
+                  hintText: 'Type your start point...',
+                ),
                 onChanged: (inputData) {
                   _locationsModel = null;
                   inputData.isEmpty ? inputText = "" : inputText = inputData;
@@ -117,15 +112,7 @@ class _MainViewState extends State<MainView> {
               child: _status == NetworkStatus.connected
                   ? Expanded(
                       child: inputText.isEmpty
-                          ? const Center(
-                              child: Text(
-                                "Search results are displayed here",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            )
+                          ? Info()
                           : _locationsModel == null
                               ? const Center(
                                   child: CircularProgressIndicator(),
@@ -146,20 +133,18 @@ class _MainViewState extends State<MainView> {
                                             child: InkWell(
                                               onTap: () {
                                                 choosedIndex = index;
-                                                print("index::$index");
                                                 setState(() {});
                                               },
                                               child: Card(
                                                 color: index == choosedIndex
-                                                    ? Color.fromARGB(
+                                                    ? const Color.fromARGB(
                                                         202, 204, 204, 204)
-                                                    : Colors.white,
+                                                    : Colors.transparent,
                                                 child: Padding(
                                                   padding: const EdgeInsets
                                                       .symmetric(horizontal: 8),
                                                   child: Column(
                                                     children: [
-                                                      // ignore: prefer_interpolation_to_compose_strings
                                                       Padding(
                                                         padding:
                                                             const EdgeInsets
@@ -284,13 +269,7 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  DropdownMenuItem<String> buildMenuItem(String item) => DropdownMenuItem(
-        value: item,
-        child: Text(
-          item,
-          // style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-        ), // Text
-      ); // DropdownMenuItem
+  // DropdownMenuItem
 
   void getData(String startPoint) async {
     final SharedPreferences prefs = await _prefs;
@@ -307,4 +286,12 @@ class _MainViewState extends State<MainView> {
     }
     Future.delayed(const Duration(seconds: 0)).then((value) => setState(() {}));
   }
+
+  /*DropdownMenuItem<String> buildMenuItem(String item) => DropdownMenuItem(
+        value: item,
+        child: Text(
+          item,
+          // style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ), // Text
+      );*/
 }
